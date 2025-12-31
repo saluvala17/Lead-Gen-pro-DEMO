@@ -19,6 +19,7 @@ with st.sidebar.form("new_lead"):
     name = st.text_input("Project Name", placeholder="e.g. Skyline Apartments")
     budget = st.number_input("Budget ($)", min_value=0, step=500)
     days = st.slider("Days to Start", 1, 90, 30)
+    priority = st.selectbox("Priority", options=["Normal", "High", "Low"], index=0)
     
     if st.form_submit_button("Submit"):
         if not name:
@@ -26,11 +27,12 @@ with st.sidebar.form("new_lead"):
         else:
             try:
                 # We use 'params' to safely encode URL parameters
-                payload = {"name": name, "budget": budget, "days": days}
+                # send priority as a simple lowercase value
+                payload = {"name": name, "budget": budget, "days": days, "priority": priority.lower()}
                 res = requests.post(f"{API_URL}/add-lead", params=payload, timeout=10)
                 
                 if res.status_code == 200:
-                    st.success(f"✅ Lead '{name}' added successfully!")
+                    st.success(f"✅ Lead '{name}' added successfully! (priority: {priority})")
                 else:
                     st.error(f"❌ Backend Error: {res.status_code}")
             except requests.exceptions.ConnectionError:

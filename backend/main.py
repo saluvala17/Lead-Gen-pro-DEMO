@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI
+from typing import Optional
 from supabase import create_client
 import sentry_sdk
 from dotenv import load_dotenv
@@ -16,11 +17,17 @@ def get_leads():
     return supabase.table("jobs_lead_gen").select("*").execute().data
 
 @app.post("/add-lead")
-def add_lead(name: str, budget: int, days: int):
+def add_lead(name: str, budget: int, days: int, priority: Optional[str] = "normal"):
     # FEATURE: Lead Urgency Scoring
     urgency = "Warm"
     if budget > 15000 and days < 14: urgency = "🔥 High"
     elif days > 60: urgency = "❄️ Low"
-    
-    data = {"name": name, "budget": budget, "urgency": urgency}
+
+    # Minimal priority validation: allow low/normal/high (case-insensitive)
+    allowed = {"low", "normal", "high"}
+    p = (priority or "normal").strip().lower()
+    if p not in allowed:
+        p = "normal"
+
+    data = {"name": name, "budget": budget, "urgency": urgency, "priority": p}
     return supabase.table("jobs_lead_gen").insert(data).execute().data
