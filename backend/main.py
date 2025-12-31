@@ -12,8 +12,8 @@ supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_ANON_KEY
 
 @app.get("/leads")
 def get_leads():
-    # Fetches all rows from the 'jobs' table in Supabase
-    return supabase.table("jobs").select("*").execute().data
+    # Fetches all rows from the 'jobs_lead_gen' table in Supabase
+    return supabase.table("jobs_lead_gen").select("*").execute().data
 
 @app.post("/add-lead")
 def add_lead(name: str, budget: int, days: int):
@@ -23,4 +23,4 @@ def add_lead(name: str, budget: int, days: int):
     elif days > 60: urgency = "❄️ Low"
     
     data = {"name": name, "budget": budget, "urgency": urgency}
-    return supabase.table("jobs").insert(data).execute().data
+    return supabase.table("jobs_lead_gen").insert(data).execute().data
